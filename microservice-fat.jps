@@ -58,9 +58,7 @@ onInstall:
        
 - buildProject
 
-onAfterBuildProject[project:${globals.projectName}]:
-  api: env.control.RestartContainersByGroup
-  nodeGroup: cp
+onAfterBuildProject[project:${globals.projectName}]: restartContainers[cp]
   
 actions:
   addBuildProject:
