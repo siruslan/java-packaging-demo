@@ -46,7 +46,6 @@ nodes:
   env:
     JELASTIC_EXPOSE: 8080
     RUN_OPTS: ""
-  startService: false
   
 onInstall:
 - addBuildProject
