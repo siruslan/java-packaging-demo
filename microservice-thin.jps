@@ -126,9 +126,7 @@ onAfterBuildProject[project:${globals.projectName}]:
       cmd[cp]: rm -r ${globals.appDir}/*; cp -R ${globals.deployDir}/* ${globals.appDir}; sudo service springboot restart
     
   - if ('${settings.workDir}' == 'wildfly-swarm-fat-thin'):
-      #need to figure out file:// and root
-      cmd[nodes.cp.master.id]: jem compute deploy -a false -c ROOT -u file://${globals.deployDir}/app.war
-      user: root
+      cmd[${nodes.cp.master.id}]: jem compute deploy -a false -c ROOT -u file://${globals.deployDir}/app.war
 
   - if ('${settings.workDir}' == 'wildfly-swarm-skinny'): restartContainers[cp]
   - if ('${settings.workDir}' == 'vertx-thin'): restartContainers[cp]
