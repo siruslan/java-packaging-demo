@@ -31,8 +31,6 @@ nodes:
   tag: 3.3.9-jdk-1.8.0_102
 
 onInstall:
-- addBuildProject
-
 
 - if ('${settings.workDir}' == 'spring-boot-thin'):
   - addNodes:
@@ -44,9 +42,6 @@ onInstall:
       nodeGroup: cp
       metadata:
         layer: cp
-      dockerVolumes:
-      - ${globals.deployDir}
-      startService: false
 
 - if ('${settings.workDir}' == 'wildfly-swarm-fat-thin'):
   - addNodes:
@@ -58,9 +53,6 @@ onInstall:
       nodeGroup: cp
       metadata:
         layer: cp
-      dockerVolumes:
-      - ${globals.deployDir}
-
 
 - if ('${settings.workDir}' == 'wildfly-swarm-skinny'): 
   - addNodes:
@@ -110,21 +102,20 @@ onInstall:
     project: hollow
     skipUpload: true   
     
+- addBuildProject    
     
-- api: env.file.AddMountPointByGroup
-  nodeGroup: cp
-  path: ${globals.deployDir}
-  protocol: nfs
-  sourcePath: ${globals.deployDir}
-  sourceNodeId: ${nodes.build.first.id}    
+- if ('${settings.workDir}' == 'wildfly-swarm-skinny' || '${settings.workDir}' == 'vertx-thin'):
+  - api: env.file.AddMountPointByGroup
+    nodeGroup: cp
+    path: ${globals.deployDir}
+    protocol: nfs
+    sourcePath: ${globals.deployDir}
+    sourceNodeId: ${nodes.build.first.id}    
        
 - buildProject
+- if ('${settings.workDir}' == 'spring-boot-thin' || '${settings.workDir}' == 'wildfly-swarm-fat-thin'): deployProject
 
 onAfterBuildProject[project:${globals.projectName}]:
-
-  - if ('${settings.workDir}' == 'spring-boot-thin'): 
-      cmd[cp]: rm -r ${globals.appDir}/*; cp -R ${globals.deployDir}/* ${globals.appDir}; sudo service springboot restart
-    
   - if ('${settings.workDir}' == 'wildfly-swarm-fat-thin'):
       cmd[${nodes.cp.master.id}]: jem compute deploy -a false -c ROOT -u file://${globals.deployDir}/app.war
 
@@ -137,6 +128,9 @@ actions:
     name: ${globals.projectName}
     nodeId: ${nodes.build.first.id}
     repo: ${globals.gitUrl}
+    deployment:
+      envName: ${env.envName}
+      nodeGroup: cp
     settings:
       workDir: ${settings.workDir}
     hooks: | 
@@ -148,4 +142,9 @@ actions:
     project: ${globals.projectName}
     skipUpload: true
     
+  deployProject:
+    api: env.deployment.DeployProject
+    nodeId: ${nodes.build.first.id}
+    project: ${globals.projectName}
+
 startPage: api/greeting      
