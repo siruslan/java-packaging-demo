@@ -124,18 +124,27 @@ onAfterBuildProject[project:${globals.projectName}]:
 
 actions:
   addBuildProject:
-    api: env.deployment.AddBuildProject
-    name: ${globals.projectName}
-    nodeId: ${nodes.build.first.id}
-    repo: ${globals.gitUrl}
-    deployment:
-      envName: ${env.envName}
-      nodeGroup: cp
-    settings:
-      workDir: ${settings.workDir}
-    hooks: | 
-      {"postBuild":"cd ${globals.buildDir}/${settings.workDir}/target; cp $(ls | grep *.jar | head -n 1) ${globals.deployDir}/ms.jar 2>/dev/null || :; cp $(ls | grep *.war | head -n 1) ${globals.deployDir}/app.war 2>/dev/null || :; cp -R thin ${globals.deployDir}/ 2>/dev/null || :"}
-  
+    - if ('${settings.workDir}' == 'spring-boot-thin' || '${settings.workDir}' == 'wildfly-swarm-fat-thin'): 
+        api: env.deployment.AddBuildProject
+        name: ${globals.projectName}
+        nodeId: ${nodes.build.first.id}
+        repo: ${globals.gitUrl}
+        settings:
+          workDir: ${settings.workDir}
+        deployment:
+          envName: ${env.envName}
+          nodeGroup: cp
+          
+    - if ('${settings.workDir}' == 'wildfly-swarm-skinny' || '${settings.workDir}' == 'vertx-thin'):
+        api: env.deployment.AddBuildProject
+        name: ${globals.projectName}
+        nodeId: ${nodes.build.first.id}
+        repo: ${globals.gitUrl}
+        settings:
+          workDir: ${settings.workDir}
+        hooks: | 
+          {"postBuild":"cd ${globals.buildDir}/${settings.workDir}/target; cp $(ls | grep *.jar | head -n 1) ${globals.deployDir}/ms.jar 2>/dev/null || :; cp $(ls | grep *.war | head -n 1) ${globals.deployDir}/app.war 2>/dev/null || :; cp -R thin ${globals.deployDir}/ 2>/dev/null || :"}
+
   buildProject:
     api: env.deployment.BuildProject
     nodeId: ${nodes.build.first.id}
