@@ -33,14 +33,8 @@ nodes:
 - count: 1
   cloudlets: 16
   nodeGroup: cp
-  image: openjdk:jre-slim
-  volumes:
-  - ${globals.deployDir}
-  volumeMounts:
-    ${globals.deployDir}:
-      sourcePath: ${globals.deployDir}
-      sourceNodeGroup: build
-      readOnly: true
+  nodeType: springboot
+  tag: jdk-1.8.0_162
   restartDelay: 15
   cmd: ${globals.cmd} $RUN_OPTS
   env:
@@ -56,8 +50,7 @@ onInstall:
     vars: {"RUN_OPTS": "server ${globals.deployDir}/greeting.yml"}
        
 - buildProject
-
-onAfterBuildProject[project:${globals.projectName}]: restartContainers[cp]
+- deployProject
   
 actions:
   addBuildProject:
@@ -67,13 +60,19 @@ actions:
     repo: ${globals.gitUrl}
     settings:
       workDir: ${settings.workDir}
-    hooks: | 
-      {"postBuild":"cd ${globals.buildDir}/${settings.workDir}/target; cp $(ls | grep .jar | head -n 1) ${globals.deployDir}/ms.jar; cp ../*.yml ${globals.deployDir} 2>/dev/null || :"}
+    deployment:
+      envName: ${env.envName}
+      nodeGroup: cp      
   
   buildProject:
     api: env.deployment.BuildProject
     nodeId: ${nodes.build.first.id}
     project: ${globals.projectName}
     skipUpload: true
+
+  deployProject:
+    api: env.deployment.DeployProject
+    nodeId: ${nodes.build.first.id}
+    project: ${globals.projectName}
       
 startPage: api/greeting      
