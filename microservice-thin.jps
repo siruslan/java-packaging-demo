@@ -19,8 +19,8 @@ settings:
     values:
       spring-boot-thin: Spring Boot Thin 
       vertx-thin: Vert.x Thin
-      wildfly-swarm-fat-thin: WildFly Swarm Thin
-      wildfly-swarm-skinny: WildFly Swarm Skinny
+      wildfly-swarm-fat-thin: Thorntail (WildFly Swarm) Thin
+      wildfly-swarm-skinny: Thorntail (WildFly Swarm) Skinny
     default: spring-boot-thin
 
 nodes:
