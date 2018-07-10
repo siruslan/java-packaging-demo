@@ -10,7 +10,7 @@ globals:
   deployDir: /deployments
   gitUrl: https://github.com/jamesfalkner/java-packaging-demo.git
   cmd: java -jar ${globals.deployDir}/ms.jar
-  
+    
 settings:   
   fields: 
   - type: list
@@ -76,4 +76,5 @@ actions:
     project: ${globals.projectName}
     skipUpload: true
       
+success: /text/success.md
 startPage: api/greeting      
