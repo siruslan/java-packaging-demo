@@ -70,7 +70,19 @@ onInstall:
       dockerRunCmd: java -jar ${globals.deployDir}/ms.jar ${globals.deployDir}/app.war &>> /var/log/run.log
       dockerEnvVars:
         JELASTIC_EXPOSE: 8080
+    
+  - api: env.deployment.AddBuildProject
+    name: hollow
+    nodeId: ${nodes.build.first.id}
+    repo: ${globals.gitUrl}
+    settings:
+      workDir: joda-fraction
 
+  - api: env.deployment.BuildProject
+    nodeId: ${nodes.build.first.id}
+    project: hollow
+    skipUpload: true 
+    
 - if ('${settings.workDir}' == 'vertx-thin'):       
   - addNodes:
       nodeType: docker
@@ -88,19 +100,7 @@ onInstall:
         VERTICLE_HOME: ${globals.deployDir}
       dockerRunCmd: run $VERTICLE_NAME -cp $VERTICLE_HOME/*
       dockerVolumes:
-      - ${globals.deployDir}
-    
-  - api: env.deployment.AddBuildProject
-    name: hollow
-    nodeId: ${nodes.build.first.id}
-    repo: ${globals.gitUrl}
-    settings:
-      workDir: joda-fraction 
-
-  - api: env.deployment.BuildProject
-    nodeId: ${nodes.build.first.id}
-    project: hollow
-    skipUpload: true   
+      - ${globals.deployDir}    
     
 - addBuildProject    
     
